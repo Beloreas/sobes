@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои заметки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .input-section {
+            margin-bottom: 15px;
+        }
+
+        .input-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 10px;
+        }
+
+        .input-wrapper {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #ffffff;
+            padding: 5px;
+        }
+
+        #noteInput {
+            width: 100%;
+            min-height: 80px;
+            border: none;
+            outline: none;
+            font-size: 10px;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+            padding: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 9px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-add {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background-color: #45a049;
+        }
+
+        .btn-clear {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background-color: #d0d0d0;
+        }
+
+        .search-section {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .search-section label {
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .search-wrapper {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #ffffff;
+            padding: 5px;
+        }
+
+        #searchInput {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 10px;
+            padding: 5px;
+        }
+
+        .btn-clear-search {
+            background-color: #ffcccc;
+            color: #333;
+            padding: 5px 10px;
+            font-size: 9px;
+        }
+
+        .search-count {
+            font-size: 9px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .notes-section {
+            margin-bottom: 15px;
+        }
+
+        .notes-list {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            padding: 2px;
+        }
+
+        .note-item {
+            padding: 5px;
+            margin: 2px;
+            border-radius: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .note-item:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .note-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .note-item.selected {
+            background-color: #e3f2fd !important;
+            border: 2px solid #2196F3;
+        }
+
+        .note-item.highlighted {
+            background-color: #fff9c4 !important;
+        }
+
+        .note-checkbox {
+            margin-top: 3px;
+            cursor: pointer;
+        }
+
+        .note-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .note-text {
+            font-size: 10px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .note-text.done {
+            color: #666;
+            text-decoration: line-through;
+        }
+
+        .note-date {
+            font-size: 8px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .subnotes {
+            margin-left: 30px;
+            margin-top: 5px;
+        }
+
+        .subnote-item {
+            padding: 3px;
+            margin: 1px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .subnote-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .subnote-text {
+            font-size: 9px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .subnote-text.done {
+            color: #666;
+            text-decoration: line-through;
+        }
+
+        .actions-section {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .actions-left, .actions-right {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        .btn-delete-all {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-delete-all:hover {
+            background-color: #d0d0d0;
+        }
+
+        .btn-uncheck {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .btn-uncheck:hover {
+            background-color: #e68900;
+        }
+
+        .btn-rename, .btn-subnote {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-rename:hover, .btn-subnote:hover {
+            background-color: #d0d0d0;
+        }
+
+        .status-bar {
+            background-color: #e0e0e0;
+            padding: 8px;
+            font-size: 8px;
+            color: #666;
+            border-top: 1px solid #ccc;
+            margin-top: 10px;
+        }
+
+        .context-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            padding: 5px 0;
+            display: none;
+            z-index: 1000;
+        }
+
+        .context-menu-item {
+            padding: 8px 20px;
+            cursor: pointer;
+            font-size: 9px;
+        }
+
+        .context-menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        @media (max-width: 600px) {
+            .actions-section {
+                flex-direction: column;
+            }
+
+            .actions-left, .actions-right {
+                width: 100%;
+            }
+
+            button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-section">
+            <label>Новая заметка:</label>
+            <div class="input-wrapper">
+                <textarea id="noteInput" placeholder="Введите текст заметки..."></textarea>
+            </div>
+            <div class="button-group">
+                <button class="btn-add" onclick="addNote()">➕ Добавить</button>
+                <button class="btn-clear" onclick="clearInput()">🗑️ Очистить поле</button>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <label>🔍 Поиск:</label>
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="Введите текст для поиска...">
+            </div>
+            <button class="btn-clear-search" onclick="clearSearch()">✖️</button>
+            <span class="search-count" id="searchCount"></span>
+        </div>
+
+        <div class="notes-section">
+            <h1>Мои заметки:</h1>
+            <div class="notes-list" id="notesList"></div>
+        </div>
+
+        <div class="actions-section">
+            <div class="actions-left">
+                <button class="btn-delete" onclick="deleteSelected()">🗑️ Удалить выбранную</button>
+                <button class="btn-delete" onclick="deleteCompleted()">✅ Удалить отмеченные</button>
+                <button class="btn-delete-all" onclick="deleteAll()">🔥 Удалить все</button>
+                <button class="btn-uncheck" onclick="uncheckAll()">☐ Снять все галочки</button>
+            </div>
+            <div class="actions-right">
+                <button class="btn-subnote" onclick="addSubnote()">📝 Добавить подзаметку</button>
+                <button class="btn-rename" onclick="renameSelected()">✏️ Переименовать</button>
+                <button class="btn-rename" onclick="exportData()">💾 Экспорт</button>
+                <button class="btn-rename" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+            </div>
+        </div>
+
+        <div class="status-bar" id="statusBar">Всего заметок: 0</div>
+    </div>
+
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="contextMenuEdit()">Редактировать</div>
+        <div class="context-menu-item" onclick="contextMenuDelete()">Удалить</div>
+    </div>
+
+    <script>
+        let notes = [];
+        let filteredNotes = [];
+        let selectedIndex = null;
+        let searchText = '';
+        let contextMenuData = null;
+
+        // Загрузка заметок из localStorage
+        function loadNotes() {
+            const saved = localStorage.getItem('notes_data');
+            if (saved) {
+                try {
+                    notes = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Ошибка загрузки заметок:', e);
+                    notes = [];
+                }
+            } else {
+                notes = [];
+            }
+            filterNotes();
+            renderNotes();
+        }
+
+        // Сохранение заметок в localStorage
+        function saveNotes() {
+            try {
+                localStorage.setItem('notes_data', JSON.stringify(notes));
+            } catch (e) {
+                alert('Ошибка сохранения заметок: ' + e.message);
+            }
+        }
+
+        // Получить текущую дату и время
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        // Добавить заметку
+        function addNote() {
+            const input = document.getElementById('noteInput');
+            const text = input.value.trim();
+            if (!text) {
+                alert('Введите текст заметки.');
+                return;
+            }
+            notes.push({
+                text: text,
+                done: false,
+                subnotes: [],
+                created: getCurrentDateTime()
+            });
+            input.value = '';
+            selectedIndex = notes.length - 1;
+            filterNotes();
+            renderNotes();
+            saveNotes();
+            input.focus();
+        }
+
+        // Очистить поле ввода
+        function clearInput() {
+            document.getElementById('noteInput').value = '';
+            document.getElementById('noteInput').focus();
+        }
+
+        // Переключить статус заметки
+        function toggleNote(index) {
+            if (0 <= index && index < notes.length) {
+                notes[index].done = !notes[index].done;
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Переключить статус подзаметки
+        function toggleSubnote(noteIndex, subIndex) {
+            if (0 <= noteIndex && noteIndex < notes.length) {
+                const subnotes = notes[noteIndex].subnotes || [];
+                if (0 <= subIndex && subIndex < subnotes.length) {
+                    subnotes[subIndex].done = !subnotes[subIndex].done;
+                    renderNotes();
+                    saveNotes();
+                }
+            }
+        }
+
+        // Фильтрация заметок
+        function filterNotes() {
+            if (!searchText) {
+                filteredNotes = notes.map((_, i) => i);
+                return;
+            }
+            const searchLower = searchText.toLowerCase();
+            filteredNotes = [];
+            for (let i = 0; i < notes.length; i++) {
+                const note = notes[i];
+                if (note.text.toLowerCase().includes(searchLower)) {
+                    filteredNotes.push(i);
+                    continue;
+                }
+                const subnotes = note.subnotes || [];
+                for (const sub of subnotes) {
+                    if (sub.text.toLowerCase().includes(searchLower)) {
+                        filteredNotes.push(i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Обработка изменения поиска
+        function onSearchChange() {
+            searchText = document.getElementById('searchInput').value.trim();
+            filterNotes();
+            renderNotes();
+        }
+
+        // Очистить поиск
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchText = '';
+            filterNotes();
+            renderNotes();
+            document.getElementById('noteInput').focus();
+        }
+
+        // Установить выбранную заметку
+        function setSelected(index) {
+            selectedIndex = index;
+            renderNotes();
+        }
+
+        // Отображение заметок
+        function renderNotes() {
+            const list = document.getElementById('notesList');
+            list.innerHTML = '';
+
+            // Обновить счетчик поиска
+            const searchCountEl = document.getElementById('searchCount');
+            if (searchText) {
+                searchCountEl.textContent = `Найдено: ${filteredNotes.length} из ${notes.length}`;
+            } else {
+                searchCountEl.textContent = '';
+            }
+
+            if (filteredNotes.length === 0) {
+                list.innerHTML = '<div style="padding: 20px; text-align: center; color: #999; font-size: 10px;">Нет заметок</div>';
+                updateStatus();
+                return;
+            }
+
+            filteredNotes.forEach((noteIndex, displayIndex) => {
+                if (noteIndex < 0 || noteIndex >= notes.length) return;
+                const note = notes[noteIndex];
+
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                if (selectedIndex === noteIndex) {
+                    noteItem.classList.add('selected');
+                }
+                if (searchText && note.text.toLowerCase().includes(searchText.toLowerCase())) {
+                    noteItem.classList.add('highlighted');
+                }
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'note-checkbox';
+                checkbox.checked = note.done || false;
+                checkbox.onchange = () => toggleNote(noteIndex);
+
+                const content = document.createElement('div');
+                content.className = 'note-content';
+
+                const text = document.createElement('div');
+                text.className = 'note-text' + (note.done ? ' done' : '');
+                text.textContent = note.text;
+                text.ondblclick = () => renameNote(noteIndex);
+                text.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, noteIndex, null);
+                };
+
+                content.appendChild(text);
+
+                if (note.created) {
+                    const date = document.createElement('div');
+                    date.className = 'note-date';
+                    date.textContent = note.created;
+                    content.appendChild(date);
+                }
+
+                noteItem.appendChild(checkbox);
+                noteItem.appendChild(content);
+                noteItem.onclick = (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        setSelected(noteIndex);
+                    }
+                };
+
+                // Подзаметки
+                if (note.subnotes && note.subnotes.length > 0) {
+                    const subnotesDiv = document.createElement('div');
+                    subnotesDiv.className = 'subnotes';
+                    note.subnotes.forEach((sub, subIndex) => {
+                        const subItem = document.createElement('div');
+                        subItem.className = 'subnote-item';
+
+                        const subCheckbox = document.createElement('input');
+                        subCheckbox.type = 'checkbox';
+                        subCheckbox.className = 'note-checkbox';
+                        subCheckbox.checked = sub.done || false;
+                        subCheckbox.onchange = () => toggleSubnote(noteIndex, subIndex);
+
+                        const subText = document.createElement('div');
+                        subText.className = 'subnote-text' + (sub.done ? ' done' : '');
+                        subText.textContent = '• ' + sub.text;
+                        subText.ondblclick = () => renameSubnote(noteIndex, subIndex);
+                        subText.oncontextmenu = (e) => {
+                            e.preventDefault();
+                            showContextMenu(e, noteIndex, subIndex);
+                        };
+
+                        subItem.appendChild(subCheckbox);
+                        subItem.appendChild(subText);
+                        subnotesDiv.appendChild(subItem);
+                    });
+                    content.appendChild(subnotesDiv);
+                }
+
+                list.appendChild(noteItem);
+            });
+
+            updateStatus();
+        }
+
+        // Обновить статус бар
+        function updateStatus() {
+            const total = notes.length;
+            const completed = notes.filter(n => n.done).length;
+            let statusText = `Всего заметок: ${total} | Выполнено: ${completed}`;
+            if (searchText) {
+                statusText += ` | Найдено: ${filteredNotes.length}`;
+            }
+            statusText += ' | Ctrl+F - поиск | ↑↓ - навигация | Delete - удалить | F2 - редактировать';
+            document.getElementById('statusBar').textContent = statusText;
+        }
+
+        // Удалить выбранную заметку
+        function deleteSelected() {
+            if (selectedIndex === null || selectedIndex < 0 || selectedIndex >= notes.length) {
+                alert('Сначала выберите заметку для удаления.');
+                return;
+            }
+            const note = notes[selectedIndex];
+            const noteText = note.text.length > 50 ? note.text.substring(0, 50) + '...' : note.text;
+            if (confirm(`Удалить заметку?\n\n"${noteText}"`)) {
+                notes.splice(selectedIndex, 1);
+                selectedIndex = null;
+                filterNotes();
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Удалить отмеченные заметки
+        function deleteCompleted() {
+            const completed = notes.filter(n => n.done);
+            if (completed.length === 0) {
+                alert('Нет выполненных заметок.');
+                return;
+            }
+            if (confirm(`Удалить ${completed.length} выполненных заметок?`)) {
+                notes = notes.filter(n => !n.done);
+                selectedIndex = null;
+                filterNotes();
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Удалить все заметки
+        function deleteAll() {
+            if (notes.length === 0) {
+                alert('Нет заметок для удаления.');
+                return;
+            }
+            if (confirm(`Точно удалить все ${notes.length} заметок?`)) {
+                notes = [];
+                selectedIndex = null;
+                filterNotes();
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Снять все галочки
+        function uncheckAll() {
+            let checkedCount = 0;
+            notes.forEach(note => {
+                if (note.done) checkedCount++;
+                note.subnotes?.forEach(sub => {
+                    if (sub.done) checkedCount++;
+                });
+            });
+            if (checkedCount === 0) {
+                alert('Нет отмеченных заметок.');
+                return;
+            }
+            if (confirm(`Снять отметки 'выполнено' со всех ${checkedCount} отмеченных заметок и подзаметок?`)) {
+                notes.forEach(note => {
+                    note.done = false;
+                    note.subnotes?.forEach(sub => {
+                        sub.done = false;
+                    });
+                });
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Переименовать выбранную заметку
+        function renameSelected() {
+            if (selectedIndex === null || selectedIndex < 0 || selectedIndex >= notes.length) {
+                alert('Сначала выберите заметку для переименования.');
+                return;
+            }
+            renameNote(selectedIndex);
+        }
+
+        // Переименовать заметку
+        function renameNote(index) {
+            if (index < 0 || index >= notes.length) return;
+            const current = notes[index].text;
+            const newText = prompt('Новый текст заметки:', current);
+            if (newText !== null && newText.trim()) {
+                notes[index].text = newText.trim();
+                notes[index].modified = getCurrentDateTime();
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Добавить подзаметку
+        function addSubnote() {
+            if (selectedIndex === null || selectedIndex < 0 || selectedIndex >= notes.length) {
+                alert('Сначала выберите заметку для добавления подзаметки.');
+                return;
+            }
+            const text = prompt('Текст подзаметки:');
+            if (text !== null && text.trim()) {
+                if (!notes[selectedIndex].subnotes) {
+                    notes[selectedIndex].subnotes = [];
+                }
+                notes[selectedIndex].subnotes.push({
+                    text: text.trim(),
+                    done: false
+                });
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Переименовать подзаметку
+        function renameSubnote(noteIndex, subIndex) {
+            if (noteIndex < 0 || noteIndex >= notes.length) return;
+            const subnotes = notes[noteIndex].subnotes || [];
+            if (subIndex < 0 || subIndex >= subnotes.length) return;
+            const current = subnotes[subIndex].text;
+            const newText = prompt('Новый текст подзаметки:', current);
+            if (newText !== null && newText.trim()) {
+                subnotes[subIndex].text = newText.trim();
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Удалить подзаметку
+        function deleteSubnote(noteIndex, subIndex) {
+            if (noteIndex < 0 || noteIndex >= notes.length) return;
+            const subnotes = notes[noteIndex].subnotes || [];
+            if (subIndex < 0 || subIndex >= subnotes.length) return;
+            const subText = subnotes[subIndex].text;
+            if (confirm(`Удалить подзаметку?\n\n"${subText}"`)) {
+                subnotes.splice(subIndex, 1);
+                renderNotes();
+                saveNotes();
+            }
+        }
+
+        // Контекстное меню
+        function showContextMenu(e, noteIndex, subIndex) {
+            const menu = document.getElementById('contextMenu');
+            contextMenuData = { noteIndex, subIndex };
+            menu.style.display = 'block';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+        }
+
+        function contextMenuEdit() {
+            if (contextMenuData) {
+                const { noteIndex, subIndex } = contextMenuData;
+                if (subIndex !== null) {
+                    renameSubnote(noteIndex, subIndex);
+                } else {
+                    renameNote(noteIndex);
+                }
+            }
+            hideContextMenu();
+        }
+
+        function contextMenuDelete() {
+            if (contextMenuData) {
+                const { noteIndex, subIndex } = contextMenuData;
+                if (subIndex !== null) {
+                    deleteSubnote(noteIndex, subIndex);
+                } else {
+                    if (confirm(`Удалить заметку?\n\n"${notes[noteIndex].text.substring(0, 50)}${notes[noteIndex].text.length > 50 ? '...' : ''}"`)) {
+                        notes.splice(noteIndex, 1);
+                        selectedIndex = null;
+                        filterNotes();
+                        renderNotes();
+                        saveNotes();
+                    }
+                }
+            }
+            hideContextMenu();
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            contextMenuData = null;
+        }
+
+        // Навигация по заметкам
+        function navigateNotes(direction) {
+            if (filteredNotes.length === 0) return;
+            let currentPos = 0;
+            if (selectedIndex !== null) {
+                currentPos = filteredNotes.indexOf(selectedIndex);
+                if (currentPos === -1) {
+                    currentPos = direction > 0 ? 0 : filteredNotes.length - 1;
+                } else {
+                    currentPos += direction;
+                    currentPos = Math.max(0, Math.min(filteredNotes.length - 1, currentPos));
+                }
+            } else {
+                currentPos = direction > 0 ? 0 : filteredNotes.length - 1;
+            }
+            if (0 <= currentPos && currentPos < filteredNotes.length) {
+                selectedIndex = filteredNotes[currentPos];
+                renderNotes();
+                // Прокрутить к выбранной заметке
+                const selectedEl = document.querySelector('.note-item.selected');
+                if (selectedEl) {
+                    selectedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        // Горячие клавиши
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Enter - добавить заметку
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                addNote();
+            }
+            // Escape - очистить поле ввода или снять выделение
+            if (e.key === 'Escape') {
+                if (document.activeElement === document.getElementById('noteInput')) {
+                    clearInput();
+                } else if (document.activeElement === document.getElementById('searchInput')) {
+                    clearSearch();
+                } else {
+                    selectedIndex = null;
+                    renderNotes();
+                }
+            }
+            // Delete - удалить выбранную заметку
+            if (e.key === 'Delete' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                deleteSelected();
+            }
+            // F2 - переименовать
+            if (e.key === 'F2' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                renameSelected();
+            }
+            // Стрелки вверх/вниз - навигация
+            if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                navigateNotes(e.key === 'ArrowUp' ? -1 : 1);
+            }
+            // Ctrl+F - фокус на поиск
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            // Ctrl+N - фокус на поле ввода
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                document.getElementById('noteInput').focus();
+            }
+        });
+
+        // Экспорт данных
+        function exportData() {
+            const dataStr = JSON.stringify(notes, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'notes_data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Импорт данных
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        if (confirm(`Импортировать ${imported.length} заметок? Существующие заметки будут заменены.`)) {
+                            notes = imported;
+                            selectedIndex = null;
+                            filterNotes();
+                            renderNotes();
+                            saveNotes();
+                            alert('Данные успешно импортированы!');
+                        }
+                    } else {
+                        alert('Неверный формат файла. Ожидается массив заметок.');
+                    }
+                } catch (err) {
+                    alert('Ошибка при импорте: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Сброс input для возможности повторной загрузки того же файла
+        }
+
+        // Закрыть контекстное меню при клике вне его
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.context-menu') && !e.target.closest('.note-text') && !e.target.closest('.subnote-text')) {
+                hideContextMenu();
+            }
+        });
+
+        // Инициализация
+        document.getElementById('searchInput').addEventListener('input', onSearchChange);
+        document.getElementById('noteInput').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'a') {
+                e.preventDefault();
+                e.target.select();
+            }
+        });
+
+        // Загрузить заметки при загрузке страницы
+        loadNotes();
+    </script>
+</body>
+</html>
