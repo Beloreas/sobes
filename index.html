@@ -1,955 +1,1147 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои заметки</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            padding: 15px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 15px;
-        }
-
-        h1 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .input-section {
-            margin-bottom: 15px;
-        }
-
-        .input-section label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 10px;
-        }
-
-        .input-wrapper {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #ffffff;
-            padding: 5px;
-        }
-
-        #noteInput {
-            width: 100%;
-            min-height: 80px;
-            border: none;
-            outline: none;
-            font-size: 10px;
-            font-family: Arial, sans-serif;
-            resize: vertical;
-            padding: 5px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 9px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-
-        .btn-add {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .btn-add:hover {
-            background-color: #45a049;
-        }
-
-        .btn-clear {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .btn-clear:hover {
-            background-color: #d0d0d0;
-        }
-
-        .search-section {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .search-section label {
-            font-weight: bold;
-            font-size: 10px;
-        }
-
-        .search-wrapper {
-            flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #ffffff;
-            padding: 5px;
-        }
-
-        #searchInput {
-            width: 100%;
-            border: none;
-            outline: none;
-            font-size: 10px;
-            padding: 5px;
-        }
-
-        .btn-clear-search {
-            background-color: #ffcccc;
-            color: #333;
-            padding: 5px 10px;
-            font-size: 9px;
-        }
-
-        .search-count {
-            font-size: 9px;
-            color: #666;
-            margin-left: 10px;
-        }
-
-        .notes-section {
-            margin-bottom: 15px;
-        }
-
-        .notes-list {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            max-height: 400px;
-            overflow-y: auto;
-            background-color: #ffffff;
-            padding: 2px;
-        }
-
-        .note-item {
-            padding: 5px;
-            margin: 2px;
-            border-radius: 4px;
-            display: flex;
-            align-items: flex-start;
-            gap: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .note-item:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        .note-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        .note-item.selected {
-            background-color: #e3f2fd !important;
-            border: 2px solid #2196F3;
-        }
-
-        .note-item.highlighted {
-            background-color: #fff9c4 !important;
-        }
-
-        .note-checkbox {
-            margin-top: 3px;
-            cursor: pointer;
-        }
-
-        .note-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .note-text {
-            font-size: 10px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .note-text.done {
-            color: #666;
-            text-decoration: line-through;
-        }
-
-        .note-date {
-            font-size: 8px;
-            color: #999;
-            margin-top: 2px;
-        }
-
-        .subnotes {
-            margin-left: 30px;
-            margin-top: 5px;
-        }
-
-        .subnote-item {
-            padding: 3px;
-            margin: 1px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 5px;
-            cursor: pointer;
-        }
-
-        .subnote-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        .subnote-text {
-            font-size: 9px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .subnote-text.done {
-            color: #666;
-            text-decoration: line-through;
-        }
-
-        .actions-section {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .actions-left, .actions-right {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-delete {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background-color: #da190b;
-        }
-
-        .btn-delete-all {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .btn-delete-all:hover {
-            background-color: #d0d0d0;
-        }
-
-        .btn-uncheck {
-            background-color: #ff9800;
-            color: white;
-        }
-
-        .btn-uncheck:hover {
-            background-color: #e68900;
-        }
-
-        .btn-rename, .btn-subnote {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .btn-rename:hover, .btn-subnote:hover {
-            background-color: #d0d0d0;
-        }
-
-        .status-bar {
-            background-color: #e0e0e0;
-            padding: 8px;
-            font-size: 8px;
-            color: #666;
-            border-top: 1px solid #ccc;
-            margin-top: 10px;
-        }
-
-        .context-menu {
-            position: absolute;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            padding: 5px 0;
-            display: none;
-            z-index: 1000;
-        }
-
-        .context-menu-item {
-            padding: 8px 20px;
-            cursor: pointer;
-            font-size: 9px;
-        }
-
-        .context-menu-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        @media (max-width: 600px) {
-            .actions-section {
-                flex-direction: column;
-            }
-
-            .actions-left, .actions-right {
-                width: 100%;
-            }
-
-            button {
-                flex: 1;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Генератор расписания встреч</title>
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+background-color: #f5f7fa;
+color: #333;
+line-height: 1.6;
+padding: 20px;
+max-width: 1400px;
+margin: 0 auto;
+}
+.container {
+display: flex;
+flex-direction: column;
+gap: 30px;
+}
+header {
+text-align: center;
+padding: 20px 0;
+background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+color: white;
+border-radius: 10px;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+h1 {
+font-size: 2.5rem;
+margin-bottom: 10px;
+}
+.subtitle {
+font-size: 1.2rem;
+opacity: 0.9;
+max-width: 800px;
+margin: 0 auto;
+}
+.main-content {
+display: flex;
+flex-wrap: wrap;
+gap: 30px;
+}
+.input-section, .schedule-section, .checks-section {
+flex: 1;
+min-width: 300px;
+background-color: white;
+border-radius: 10px;
+padding: 25px;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+.checks-section {
+flex: 1.2;
+}
+.section-title {
+font-size: 1.5rem;
+color: #3a7bd5;
+margin-bottom: 20px;
+padding-bottom: 10px;
+border-bottom: 2px solid #f0f0f0;
+}
+.input-group {
+margin-bottom: 20px;
+}
+label {
+display: block;
+margin-bottom: 8px;
+font-weight: 600;
+color: #555;
+}
+input[type="text"] {
+width: 100%;
+padding: 12px 15px;
+border: 2px solid #ddd;
+border-radius: 6px;
+font-size: 1rem;
+transition: border 0.3s;
+}
+input[type="text"]:focus {
+border-color: #3a7bd5;
+outline: none;
+}
+.btn {
+background-color: #3a7bd5;
+color: white;
+border: none;
+padding: 12px 24px;
+border-radius: 6px;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+.btn:hover {
+background-color: #2c63b5;
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.btn-secondary {
+background-color: #6c757d;
+}
+.btn-secondary:hover {
+background-color: #5a6268;
+}
+.btn-success {
+background-color: #28a745;
+}
+.btn-success:hover {
+background-color: #218838;
+}
+.btn-warning {
+background-color: #ffc107;
+color: #333;
+}
+.btn-warning:hover {
+background-color: #e0a800;
+}
+.participants-list {
+margin-top: 15px;
+max-height: 200px;
+overflow-y: auto;
+border: 1px solid #eee;
+border-radius: 6px;
+padding: 10px;
+}
+.participant-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px;
+border-bottom: 1px solid #f5f5f5;
+}
+.participant-item:last-child {
+border-bottom: none;
+}
+.remove-btn {
+background: none;
+border: none;
+color: #dc3545;
+cursor: pointer;
+font-weight: bold;
+font-size: 1.2rem;
+padding: 0 5px;
+}
+.remove-btn:hover {
+color: #c82333;
+}
+.controls {
+display: flex;
+gap: 15px;
+margin-top: 25px;
+flex-wrap: wrap;
+}
+.error-message {
+color: #dc3545;
+background-color: #f8d7da;
+border: 1px solid #f5c6cb;
+padding: 10px;
+border-radius: 6px;
+margin-top: 15px;
+display: none;
+}
+.info-box {
+background-color: #e7f3ff;
+border-left: 4px solid #3a7bd5;
+padding: 15px;
+border-radius: 4px;
+margin-top: 20px;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 15px;
+}
+th {
+background-color: #3a7bd5;
+color: white;
+padding: 12px 8px;
+text-align: center;
+font-weight: 600;
+position: sticky;
+top: 0;
+}
+td {
+padding: 10px 8px;
+border: 1px solid #ddd;
+text-align: center;
+}
+tr:nth-child(even) {
+background-color: #f9f9f9;
+}
+tr:hover {
+background-color: #f1f7ff;
+}
+.schedule-container {
+overflow-x: auto;
+max-height: 500px;
+overflow-y: auto;
+margin-top: 10px;
+}
+.stats {
+display: flex;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 15px;
+margin-top: 25px;
+padding: 15px;
+background-color: #f8f9fa;
+border-radius: 6px;
+}
+.stat-item {
+text-align: center;
+flex: 1;
+min-width: 150px;
+}
+.stat-value {
+font-size: 2rem;
+font-weight: bold;
+color: #3a7bd5;
+}
+.stat-label {
+font-size: 0.9rem;
+color: #666;
+margin-top: 5px;
+}
+.loading {
+display: none;
+text-align: center;
+padding: 30px;
+}
+.spinner {
+border: 5px solid #f3f3f3;
+border-top: 5px solid #3a7bd5;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+animation: spin 1s linear infinite;
+margin: 0 auto 15px;
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+footer {
+text-align: center;
+margin-top: 30px;
+padding-top: 20px;
+border-top: 1px solid #ddd;
+color: #666;
+font-size: 0.9rem;
+}
+.check-results {
+margin-top: 20px;
+}
+.check-item {
+display: flex;
+align-items: center;
+padding: 12px;
+margin-bottom: 10px;
+border-radius: 6px;
+background-color: #f8f9fa;
+}
+.check-icon {
+width: 24px;
+height: 24px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 12px;
+font-weight: bold;
+}
+.check-success {
+background-color: #d4edda;
+color: #155724;
+}
+.check-error {
+background-color: #f8d7da;
+color: #721c24;
+}
+.check-warning {
+background-color: #fff3cd;
+color: #856404;
+}
+.pair-count-table {
+margin-top: 15px;
+font-size: 0.9rem;
+}
+.pair-count-table th {
+background-color: #6c757d;
+font-size: 0.9rem;
+padding: 8px 5px;
+}
+.pair-count-table td {
+padding: 6px 5px;
+}
+.pair-count-1 {
+background-color: #d4edda !important;
+color: #155724;
+font-weight: bold;
+}
+.pair-count-0 {
+background-color: #f8d7da !important;
+color: #721c24;
+}
+.pair-count-more {
+background-color: #fff3cd !important;
+color: #856404;
+font-weight: bold;
+}
+.day-valid {
+background-color: #d4edda !important;
+}
+.day-invalid {
+background-color: #f8d7da !important;
+}
+.conflict-highlight {
+background-color: #ffcccc !important;
+font-weight: bold;
+animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+0% { background-color: #ffcccc; }
+50% { background-color: #ff9999; }
+100% { background-color: #ffcccc; }
+}
+.validation-summary {
+margin-top: 20px;
+padding: 15px;
+border-radius: 6px;
+}
+.validation-ok {
+background-color: #d4edda;
+border: 1px solid #c3e6cb;
+color: #155724;
+}
+.validation-error {
+background-color: #f8d7da;
+border: 1px solid #f5c6cb;
+color: #721c24;
+}
+.empty-cell {
+background-color: #fff3cd !important;
+color: #856404;
+font-style: italic;
+}
+.meeting-cell {
+background-color: #e7f3ff !important;
+font-weight: 500;
+}
+@media (max-width: 768px) {
+.main-content {
+flex-direction: column;
+}
+.controls {
+flex-direction: column;
+}
+.btn {
+width: 100%;
+}
+h1 {
+font-size: 2rem;
+}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="input-section">
-            <label>Новая заметка:</label>
-            <div class="input-wrapper">
-                <textarea id="noteInput" placeholder="Введите текст заметки..."></textarea>
-            </div>
-            <div class="button-group">
-                <button class="btn-add" onclick="addNote()">➕ Добавить</button>
-                <button class="btn-clear" onclick="clearInput()">🗑️ Очистить поле</button>
-            </div>
-        </div>
-
-        <div class="search-section">
-            <label>🔍 Поиск:</label>
-            <div class="search-wrapper">
-                <input type="text" id="searchInput" placeholder="Введите текст для поиска...">
-            </div>
-            <button class="btn-clear-search" onclick="clearSearch()">✖️</button>
-            <span class="search-count" id="searchCount"></span>
-        </div>
-
-        <div class="notes-section">
-            <h1>Мои заметки:</h1>
-            <div class="notes-list" id="notesList"></div>
-        </div>
-
-        <div class="actions-section">
-            <div class="actions-left">
-                <button class="btn-delete" onclick="deleteSelected()">🗑️ Удалить выбранную</button>
-                <button class="btn-delete" onclick="deleteCompleted()">✅ Удалить отмеченные</button>
-                <button class="btn-delete-all" onclick="deleteAll()">🔥 Удалить все</button>
-                <button class="btn-uncheck" onclick="uncheckAll()">☐ Снять все галочки</button>
-            </div>
-            <div class="actions-right">
-                <button class="btn-subnote" onclick="addSubnote()">📝 Добавить подзаметку</button>
-                <button class="btn-rename" onclick="renameSelected()">✏️ Переименовать</button>
-                <button class="btn-rename" onclick="exportData()">💾 Экспорт</button>
-                <button class="btn-rename" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-            </div>
-        </div>
-
-        <div class="status-bar" id="statusBar">Всего заметок: 0</div>
-    </div>
-
-    <div class="context-menu" id="contextMenu">
-        <div class="context-menu-item" onclick="contextMenuEdit()">Редактировать</div>
-        <div class="context-menu-item" onclick="contextMenuDelete()">Удалить</div>
-    </div>
-
-    <script>
-        let notes = [];
-        let filteredNotes = [];
-        let selectedIndex = null;
-        let searchText = '';
-        let contextMenuData = null;
-
-        // Загрузка заметок из localStorage
-        function loadNotes() {
-            const saved = localStorage.getItem('notes_data');
-            if (saved) {
-                try {
-                    notes = JSON.parse(saved);
-                } catch (e) {
-                    console.error('Ошибка загрузки заметок:', e);
-                    notes = [];
-                }
-            } else {
-                notes = [];
-            }
-            filterNotes();
-            renderNotes();
-        }
-
-        // Сохранение заметок в localStorage
-        function saveNotes() {
-            try {
-                localStorage.setItem('notes_data', JSON.stringify(notes));
-            } catch (e) {
-                alert('Ошибка сохранения заметок: ' + e.message);
-            }
-        }
-
-        // Получить текущую дату и время
-        function getCurrentDateTime() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}`;
-        }
-
-        // Добавить заметку
-        function addNote() {
-            const input = document.getElementById('noteInput');
-            const text = input.value.trim();
-            if (!text) {
-                alert('Введите текст заметки.');
-                return;
-            }
-            notes.push({
-                text: text,
-                done: false,
-                subnotes: [],
-                created: getCurrentDateTime()
-            });
-            input.value = '';
-            selectedIndex = notes.length - 1;
-            filterNotes();
-            renderNotes();
-            saveNotes();
-            input.focus();
-        }
-
-        // Очистить поле ввода
-        function clearInput() {
-            document.getElementById('noteInput').value = '';
-            document.getElementById('noteInput').focus();
-        }
-
-        // Переключить статус заметки
-        function toggleNote(index) {
-            if (0 <= index && index < notes.length) {
-                notes[index].done = !notes[index].done;
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Переключить статус подзаметки
-        function toggleSubnote(noteIndex, subIndex) {
-            if (0 <= noteIndex && noteIndex < notes.length) {
-                const subnotes = notes[noteIndex].subnotes || [];
-                if (0 <= subIndex && subIndex < subnotes.length) {
-                    subnotes[subIndex].done = !subnotes[subIndex].done;
-                    renderNotes();
-                    saveNotes();
-                }
-            }
-        }
-
-        // Фильтрация заметок
-        function filterNotes() {
-            if (!searchText) {
-                filteredNotes = notes.map((_, i) => i);
-                return;
-            }
-            const searchLower = searchText.toLowerCase();
-            filteredNotes = [];
-            for (let i = 0; i < notes.length; i++) {
-                const note = notes[i];
-                if (note.text.toLowerCase().includes(searchLower)) {
-                    filteredNotes.push(i);
-                    continue;
-                }
-                const subnotes = note.subnotes || [];
-                for (const sub of subnotes) {
-                    if (sub.text.toLowerCase().includes(searchLower)) {
-                        filteredNotes.push(i);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Обработка изменения поиска
-        function onSearchChange() {
-            searchText = document.getElementById('searchInput').value.trim();
-            filterNotes();
-            renderNotes();
-        }
-
-        // Очистить поиск
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            searchText = '';
-            filterNotes();
-            renderNotes();
-            document.getElementById('noteInput').focus();
-        }
-
-        // Установить выбранную заметку
-        function setSelected(index) {
-            selectedIndex = index;
-            renderNotes();
-        }
-
-        // Отображение заметок
-        function renderNotes() {
-            const list = document.getElementById('notesList');
-            list.innerHTML = '';
-
-            // Обновить счетчик поиска
-            const searchCountEl = document.getElementById('searchCount');
-            if (searchText) {
-                searchCountEl.textContent = `Найдено: ${filteredNotes.length} из ${notes.length}`;
-            } else {
-                searchCountEl.textContent = '';
-            }
-
-            if (filteredNotes.length === 0) {
-                list.innerHTML = '<div style="padding: 20px; text-align: center; color: #999; font-size: 10px;">Нет заметок</div>';
-                updateStatus();
-                return;
-            }
-
-            filteredNotes.forEach((noteIndex, displayIndex) => {
-                if (noteIndex < 0 || noteIndex >= notes.length) return;
-                const note = notes[noteIndex];
-
-                const noteItem = document.createElement('div');
-                noteItem.className = 'note-item';
-                if (selectedIndex === noteIndex) {
-                    noteItem.classList.add('selected');
-                }
-                if (searchText && note.text.toLowerCase().includes(searchText.toLowerCase())) {
-                    noteItem.classList.add('highlighted');
-                }
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'note-checkbox';
-                checkbox.checked = note.done || false;
-                checkbox.onchange = () => toggleNote(noteIndex);
-
-                const content = document.createElement('div');
-                content.className = 'note-content';
-
-                const text = document.createElement('div');
-                text.className = 'note-text' + (note.done ? ' done' : '');
-                text.textContent = note.text;
-                text.ondblclick = () => renameNote(noteIndex);
-                text.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    showContextMenu(e, noteIndex, null);
-                };
-
-                content.appendChild(text);
-
-                if (note.created) {
-                    const date = document.createElement('div');
-                    date.className = 'note-date';
-                    date.textContent = note.created;
-                    content.appendChild(date);
-                }
-
-                noteItem.appendChild(checkbox);
-                noteItem.appendChild(content);
-                noteItem.onclick = (e) => {
-                    if (e.target.type !== 'checkbox') {
-                        setSelected(noteIndex);
-                    }
-                };
-
-                // Подзаметки
-                if (note.subnotes && note.subnotes.length > 0) {
-                    const subnotesDiv = document.createElement('div');
-                    subnotesDiv.className = 'subnotes';
-                    note.subnotes.forEach((sub, subIndex) => {
-                        const subItem = document.createElement('div');
-                        subItem.className = 'subnote-item';
-
-                        const subCheckbox = document.createElement('input');
-                        subCheckbox.type = 'checkbox';
-                        subCheckbox.className = 'note-checkbox';
-                        subCheckbox.checked = sub.done || false;
-                        subCheckbox.onchange = () => toggleSubnote(noteIndex, subIndex);
-
-                        const subText = document.createElement('div');
-                        subText.className = 'subnote-text' + (sub.done ? ' done' : '');
-                        subText.textContent = '• ' + sub.text;
-                        subText.ondblclick = () => renameSubnote(noteIndex, subIndex);
-                        subText.oncontextmenu = (e) => {
-                            e.preventDefault();
-                            showContextMenu(e, noteIndex, subIndex);
-                        };
-
-                        subItem.appendChild(subCheckbox);
-                        subItem.appendChild(subText);
-                        subnotesDiv.appendChild(subItem);
-                    });
-                    content.appendChild(subnotesDiv);
-                }
-
-                list.appendChild(noteItem);
-            });
-
-            updateStatus();
-        }
-
-        // Обновить статус бар
-        function updateStatus() {
-            const total = notes.length;
-            const completed = notes.filter(n => n.done).length;
-            let statusText = `Всего заметок: ${total} | Выполнено: ${completed}`;
-            if (searchText) {
-                statusText += ` | Найдено: ${filteredNotes.length}`;
-            }
-            statusText += ' | Ctrl+F - поиск | ↑↓ - навигация | Delete - удалить | F2 - редактировать';
-            document.getElementById('statusBar').textContent = statusText;
-        }
-
-        // Удалить выбранную заметку
-        function deleteSelected() {
-            if (selectedIndex === null || selectedIndex < 0 || selectedIndex >= notes.length) {
-                alert('Сначала выберите заметку для удаления.');
-                return;
-            }
-            const note = notes[selectedIndex];
-            const noteText = note.text.length > 50 ? note.text.substring(0, 50) + '...' : note.text;
-            if (confirm(`Удалить заметку?\n\n"${noteText}"`)) {
-                notes.splice(selectedIndex, 1);
-                selectedIndex = null;
-                filterNotes();
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Удалить отмеченные заметки
-        function deleteCompleted() {
-            const completed = notes.filter(n => n.done);
-            if (completed.length === 0) {
-                alert('Нет выполненных заметок.');
-                return;
-            }
-            if (confirm(`Удалить ${completed.length} выполненных заметок?`)) {
-                notes = notes.filter(n => !n.done);
-                selectedIndex = null;
-                filterNotes();
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Удалить все заметки
-        function deleteAll() {
-            if (notes.length === 0) {
-                alert('Нет заметок для удаления.');
-                return;
-            }
-            if (confirm(`Точно удалить все ${notes.length} заметок?`)) {
-                notes = [];
-                selectedIndex = null;
-                filterNotes();
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Снять все галочки
-        function uncheckAll() {
-            let checkedCount = 0;
-            notes.forEach(note => {
-                if (note.done) checkedCount++;
-                note.subnotes?.forEach(sub => {
-                    if (sub.done) checkedCount++;
-                });
-            });
-            if (checkedCount === 0) {
-                alert('Нет отмеченных заметок.');
-                return;
-            }
-            if (confirm(`Снять отметки 'выполнено' со всех ${checkedCount} отмеченных заметок и подзаметок?`)) {
-                notes.forEach(note => {
-                    note.done = false;
-                    note.subnotes?.forEach(sub => {
-                        sub.done = false;
-                    });
-                });
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Переименовать выбранную заметку
-        function renameSelected() {
-            if (selectedIndex === null || selectedIndex < 0 || selectedIndex >= notes.length) {
-                alert('Сначала выберите заметку для переименования.');
-                return;
-            }
-            renameNote(selectedIndex);
-        }
-
-        // Переименовать заметку
-        function renameNote(index) {
-            if (index < 0 || index >= notes.length) return;
-            const current = notes[index].text;
-            const newText = prompt('Новый текст заметки:', current);
-            if (newText !== null && newText.trim()) {
-                notes[index].text = newText.trim();
-                notes[index].modified = getCurrentDateTime();
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Добавить подзаметку
-        function addSubnote() {
-            if (selectedIndex === null || selectedIndex < 0 || selectedIndex >= notes.length) {
-                alert('Сначала выберите заметку для добавления подзаметки.');
-                return;
-            }
-            const text = prompt('Текст подзаметки:');
-            if (text !== null && text.trim()) {
-                if (!notes[selectedIndex].subnotes) {
-                    notes[selectedIndex].subnotes = [];
-                }
-                notes[selectedIndex].subnotes.push({
-                    text: text.trim(),
-                    done: false
-                });
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Переименовать подзаметку
-        function renameSubnote(noteIndex, subIndex) {
-            if (noteIndex < 0 || noteIndex >= notes.length) return;
-            const subnotes = notes[noteIndex].subnotes || [];
-            if (subIndex < 0 || subIndex >= subnotes.length) return;
-            const current = subnotes[subIndex].text;
-            const newText = prompt('Новый текст подзаметки:', current);
-            if (newText !== null && newText.trim()) {
-                subnotes[subIndex].text = newText.trim();
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Удалить подзаметку
-        function deleteSubnote(noteIndex, subIndex) {
-            if (noteIndex < 0 || noteIndex >= notes.length) return;
-            const subnotes = notes[noteIndex].subnotes || [];
-            if (subIndex < 0 || subIndex >= subnotes.length) return;
-            const subText = subnotes[subIndex].text;
-            if (confirm(`Удалить подзаметку?\n\n"${subText}"`)) {
-                subnotes.splice(subIndex, 1);
-                renderNotes();
-                saveNotes();
-            }
-        }
-
-        // Контекстное меню
-        function showContextMenu(e, noteIndex, subIndex) {
-            const menu = document.getElementById('contextMenu');
-            contextMenuData = { noteIndex, subIndex };
-            menu.style.display = 'block';
-            menu.style.left = e.pageX + 'px';
-            menu.style.top = e.pageY + 'px';
-        }
-
-        function contextMenuEdit() {
-            if (contextMenuData) {
-                const { noteIndex, subIndex } = contextMenuData;
-                if (subIndex !== null) {
-                    renameSubnote(noteIndex, subIndex);
-                } else {
-                    renameNote(noteIndex);
-                }
-            }
-            hideContextMenu();
-        }
-
-        function contextMenuDelete() {
-            if (contextMenuData) {
-                const { noteIndex, subIndex } = contextMenuData;
-                if (subIndex !== null) {
-                    deleteSubnote(noteIndex, subIndex);
-                } else {
-                    if (confirm(`Удалить заметку?\n\n"${notes[noteIndex].text.substring(0, 50)}${notes[noteIndex].text.length > 50 ? '...' : ''}"`)) {
-                        notes.splice(noteIndex, 1);
-                        selectedIndex = null;
-                        filterNotes();
-                        renderNotes();
-                        saveNotes();
-                    }
-                }
-            }
-            hideContextMenu();
-        }
-
-        function hideContextMenu() {
-            document.getElementById('contextMenu').style.display = 'none';
-            contextMenuData = null;
-        }
-
-        // Навигация по заметкам
-        function navigateNotes(direction) {
-            if (filteredNotes.length === 0) return;
-            let currentPos = 0;
-            if (selectedIndex !== null) {
-                currentPos = filteredNotes.indexOf(selectedIndex);
-                if (currentPos === -1) {
-                    currentPos = direction > 0 ? 0 : filteredNotes.length - 1;
-                } else {
-                    currentPos += direction;
-                    currentPos = Math.max(0, Math.min(filteredNotes.length - 1, currentPos));
-                }
-            } else {
-                currentPos = direction > 0 ? 0 : filteredNotes.length - 1;
-            }
-            if (0 <= currentPos && currentPos < filteredNotes.length) {
-                selectedIndex = filteredNotes[currentPos];
-                renderNotes();
-                // Прокрутить к выбранной заметке
-                const selectedEl = document.querySelector('.note-item.selected');
-                if (selectedEl) {
-                    selectedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
-        }
-
-        // Горячие клавиши
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+Enter - добавить заметку
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                addNote();
-            }
-            // Escape - очистить поле ввода или снять выделение
-            if (e.key === 'Escape') {
-                if (document.activeElement === document.getElementById('noteInput')) {
-                    clearInput();
-                } else if (document.activeElement === document.getElementById('searchInput')) {
-                    clearSearch();
-                } else {
-                    selectedIndex = null;
-                    renderNotes();
-                }
-            }
-            // Delete - удалить выбранную заметку
-            if (e.key === 'Delete' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                deleteSelected();
-            }
-            // F2 - переименовать
-            if (e.key === 'F2' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-                renameSelected();
-            }
-            // Стрелки вверх/вниз - навигация
-            if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-                navigateNotes(e.key === 'ArrowUp' ? -1 : 1);
-            }
-            // Ctrl+F - фокус на поиск
-            if (e.ctrlKey && e.key === 'f') {
-                e.preventDefault();
-                document.getElementById('searchInput').focus();
-            }
-            // Ctrl+N - фокус на поле ввода
-            if (e.ctrlKey && e.key === 'n') {
-                e.preventDefault();
-                document.getElementById('noteInput').focus();
-            }
-        });
-
-        // Экспорт данных
-        function exportData() {
-            const dataStr = JSON.stringify(notes, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'notes_data.json';
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Импорт данных
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        if (confirm(`Импортировать ${imported.length} заметок? Существующие заметки будут заменены.`)) {
-                            notes = imported;
-                            selectedIndex = null;
-                            filterNotes();
-                            renderNotes();
-                            saveNotes();
-                            alert('Данные успешно импортированы!');
-                        }
-                    } else {
-                        alert('Неверный формат файла. Ожидается массив заметок.');
-                    }
-                } catch (err) {
-                    alert('Ошибка при импорте: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Сброс input для возможности повторной загрузки того же файла
-        }
-
-        // Закрыть контекстное меню при клике вне его
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.context-menu') && !e.target.closest('.note-text') && !e.target.closest('.subnote-text')) {
-                hideContextMenu();
-            }
-        });
-
-        // Инициализация
-        document.getElementById('searchInput').addEventListener('input', onSearchChange);
-        document.getElementById('noteInput').addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'a') {
-                e.preventDefault();
-                e.target.select();
-            }
-        });
-
-        // Загрузить заметки при загрузке страницы
-        loadNotes();
-    </script>
+<div class="container">
+<header>
+<h1>Генератор расписания встреч</h1>
+<p class="subtitle">Каждый участник встречается с каждым другим ровно один раз. Автоматическая проверка на повторения и конфликты.</p>
+</header>
+<div class="main-content">
+<div class="input-section">
+<h2 class="section-title">Участники</h2>
+<div class="input-group">
+<label for="participant-input">Добавить участника:</label>
+<input type="text" id="participant-input" placeholder="Введите имя участника">
+<button id="add-btn" class="btn">Добавить участника</button>
+</div>
+<div class="participants-list" id="participants-list">
+<!-- Участники будут добавляться здесь -->
+</div>
+<div class="input-group">
+<label for="start-date">Дата начала встреч:</label>
+<input type="text" id="start-date" placeholder="дд.мм (например: 03.02)" value="03.02">
+</div>
+<div class="error-message" id="error-message"></div>
+<div class="info-box">
+<strong>Как это работает:</strong>
+<p>1. Каждый участник встречается с каждым другим ровно один раз</p>
+<p>2. Алгоритм избегает пустых дней и повторяющихся пар</p>
+<p>3. Система автоматически проверяет корректность расписания</p>
+</div>
+<div class="controls">
+<button id="generate-btn" class="btn btn-success">
+<span>Сгенерировать расписание</span>
+</button>
+<button id="clear-btn" class="btn btn-secondary">
+<span>Очистить список</span>
+</button>
+<button id="example-btn" class="btn">
+<span>Загрузить пример</span>
+</button>
+<!-- <button id="optimize-btn" class="btn btn-warning" style="display: none;">
+<span>Оптимизировать расписание</span>
+</button> -->
+</div>
+</div>
+<div class="schedule-section">
+<h2 class="section-title">Расписание встреч</h2>
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<p>Генерация и проверка расписания...</p>
+</div>
+<div class="stats" id="stats">
+<!-- Статистика будет обновляться здесь -->
+</div>
+<div class="validation-summary" id="validation-summary">
+<!-- Результаты проверки будут здесь -->
+</div>
+<div class="schedule-container" id="schedule-container">
+<!-- Расписание будет отображаться здесь -->
+</div>
+<div class="controls" id="export-controls" style="display: none; margin-top: 20px;">
+<button id="export-excel" class="btn">
+<span>Сохранить в Excel</span>
+</button>
+<button id="export-print" class="btn btn-secondary">
+<span>Распечатать расписание</span>
+</button>
+</div>
+</div>
+<div class="checks-section">
+<h2 class="section-title">Проверка расписания</h2>
+<div class="check-results" id="check-results">
+<!-- Результаты проверок будут здесь -->
+</div>
+<div id="pair-checks-container">
+<!-- Таблицы проверок пар будут здесь -->
+</div>
+<div id="conflict-list" style="margin-top: 20px; display: none;">
+<h3 style="color: #dc3545; margin-bottom: 10px;">Обнаруженные конфликты:</h3>
+<div id="conflicts"></div>
+</div>
+</div>
+</div>
+<footer>
+<p>Генератор расписания встреч &copy; 2026 | Алгоритм гарантирует уникальные встречи без повторов</p>
+</footer>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Элементы DOM
+const participantInput = document.getElementById('participant-input');
+const addBtn = document.getElementById('add-btn');
+const participantsList = document.getElementById('participants-list');
+const startDateInput = document.getElementById('start-date');
+const generateBtn = document.getElementById('generate-btn');
+const clearBtn = document.getElementById('clear-btn');
+const exampleBtn = document.getElementById('example-btn');
+// const optimizeBtn = document.getElementById('optimize-btn');
+const errorMessage = document.getElementById('error-message');
+const scheduleContainer = document.getElementById('schedule-container');
+const loading = document.getElementById('loading');
+const statsContainer = document.getElementById('stats');
+const exportControls = document.getElementById('export-controls');
+const exportExcelBtn = document.getElementById('export-excel');
+const exportPrintBtn = document.getElementById('export-print');
+const checkResults = document.getElementById('check-results');
+const pairChecksContainer = document.getElementById('pair-checks-container');
+const validationSummary = document.getElementById('validation-summary');
+const conflictList = document.getElementById('conflict-list');
+const conflictsDiv = document.getElementById('conflicts');
+// Массив участников
+let participants = [];
+let currentSchedule = null;
+let currentDates = null;
+// Загружаем сохраненных участников из localStorage
+loadParticipants();
+// Функция для загрузки участников из localStorage
+function loadParticipants() {
+const savedParticipants = localStorage.getItem('meetingParticipants');
+if (savedParticipants) {
+participants = JSON.parse(savedParticipants);
+renderParticipantsList();
+}
+}
+// Функция для сохранения участников в localStorage
+function saveParticipants() {
+localStorage.setItem('meetingParticipants', JSON.stringify(participants));
+}
+// Функция для отображения списка участников
+function renderParticipantsList() {
+participantsList.innerHTML = '';
+if (participants.length === 0) {
+participantsList.innerHTML = '<p style="text-align: center; color: #999;">Нет добавленных участников</p>';
+return;
+}
+participants.forEach((participant, index) => {
+const participantItem = document.createElement('div');
+participantItem.className = 'participant-item';
+participantItem.innerHTML = `
+<span>${participant}</span>
+<button class="remove-btn" data-index="${index}">&times;</button>
+`;
+participantsList.appendChild(participantItem);
+});
+// Добавляем обработчики событий для кнопок удаления
+document.querySelectorAll('.remove-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const index = parseInt(this.getAttribute('data-index'));
+removeParticipant(index);
+});
+});
+}
+// Функция для добавления участника
+function addParticipant() {
+const name = participantInput.value.trim();
+if (!name) {
+showError('Введите имя участника');
+return;
+}
+if (participants.includes(name)) {
+showError('Этот участник уже добавлен');
+return;
+}
+participants.push(name);
+participantInput.value = '';
+renderParticipantsList();
+saveParticipants();
+hideError();
+// Скрываем расписание, если список участников изменился
+scheduleContainer.innerHTML = '';
+exportControls.style.display = 'none';
+checkResults.innerHTML = '';
+pairChecksContainer.innerHTML = '';
+validationSummary.innerHTML = '';
+conflictList.style.display = 'none';
+}
+// Функция для удаления участника
+function removeParticipant(index) {
+participants.splice(index, 1);
+renderParticipantsList();
+saveParticipants();
+// Скрываем расписание, если список участников изменился
+scheduleContainer.innerHTML = '';
+exportControls.style.display = 'none';
+checkResults.innerHTML = '';
+pairChecksContainer.innerHTML = '';
+validationSummary.innerHTML = '';
+conflictList.style.display = 'none';
+}
+// Функция для очистки списка участников
+function clearParticipants() {
+participants = [];
+renderParticipantsList();
+saveParticipants();
+scheduleContainer.innerHTML = '';
+exportControls.style.display = 'none';
+statsContainer.innerHTML = '';
+checkResults.innerHTML = '';
+pairChecksContainer.innerHTML = '';
+validationSummary.innerHTML = '';
+conflictList.style.display = 'none';
+}
+// Функция для загрузки примера
+function loadExample() {
+participants = ["Вячеслав", "Андрей", "Катя", "Саша", "Александра",
+"Татьяна", "Настя У", "Настя Е", "Степа", "Сергей",
+"Лена", "Светлана"];
+renderParticipantsList();
+saveParticipants();
+}
+// Функция для показа ошибки
+function showError(message) {
+errorMessage.textContent = message;
+errorMessage.style.display = 'block';
+}
+// Функция для скрытия ошибки
+function hideError() {
+errorMessage.style.display = 'none';
+}
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ ГЕНЕРАЦИИ РАСПИСАНИЯ
+function generateSchedule(participants, startDateStr) {
+const n = participants.length;
+if (n < 2) {
+return { schedule: {}, dates: [], message: 'Нужно как минимум 2 участника' };
+}
+// Для нечетного количества участников добавим фиктивного участника
+let participantsWithDummy = [...participants];
+let hasDummy = false;
+if (n % 2 !== 0) {
+participantsWithDummy.push('Отдых');
+hasDummy = true;
+}
+const m = participantsWithDummy.length;
+const daysNeeded = m - 1;
+// Инициализируем расписание
+const schedule = {};
+participants.forEach(participant => {
+schedule[participant] = Array(daysNeeded).fill('');
+});
+// Алгоритм кругового турнира (правильная реализация)
+const fixed = participantsWithDummy[0];
+let others = participantsWithDummy.slice(1);
+for (let day = 0; day < daysNeeded; day++) {
+// Пара 1: фиксированный участник ↔ первый из остальных
+if (fixed !== 'Отдых' && others[0] !== 'Отдых') {
+schedule[fixed][day] = others[0];
+schedule[others[0]][day] = fixed;
+} else if (fixed !== 'Отдых' && others[0] === 'Отдых') {
+schedule[fixed][day] = '(отдых)';
+}
+// Остальные пары: зеркальное сопоставление
+for (let i = 1; i < Math.floor(m / 2); i++) {
+const person1 = others[i];
+const person2 = others[m - 1 - i]; // ИСПРАВЛЕНО: было m - 2 - i
+if (person1 !== 'Отдых' && person2 !== 'Отдых') {
+schedule[person1][day] = person2;
+schedule[person2][day] = person1;
+} else if (person1 === 'Отдых' && person2 !== 'Отдых') {
+schedule[person2][day] = '(отдых)';
+} else if (person2 === 'Отдых' && person1 !== 'Отдых') {
+schedule[person1][day] = '(отдых)';
+}
+}
+// Вращаем список для следующего дня (кроме последнего)
+if (day < daysNeeded - 1) {
+others = [others[others.length - 1], ...others.slice(0, others.length - 1)];
+}
+}
+// Генерируем даты
+const dates = generateDates(startDateStr, daysNeeded);
+return { schedule, dates, hasDummy };
+}
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ ГЕНЕРАЦИИ ДАТ (с учётом перехода месяцев)
+function generateDates(startDateStr, numDays) {
+const dates = [];
+const parts = startDateStr.split('.');
+if (parts.length < 2) {
+// Если формат неправильный, используем текущую дату
+const today = new Date();
+let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+for (let i = 0; i < numDays; i++) {
+const day = currentDate.getDate();
+const month = currentDate.getMonth() + 1;
+dates.push(`${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}`);
+currentDate.setDate(currentDate.getDate() + 1);
+}
+} else {
+const day = parseInt(parts[0]);
+const month = parseInt(parts[1]) - 1; // месяцы в JS от 0 до 11
+const year = new Date().getFullYear();
+let currentDate = new Date(year, month, day);
+for (let i = 0; i < numDays; i++) {
+const d = currentDate.getDate();
+const m = currentDate.getMonth() + 1;
+dates.push(`${d.toString().padStart(2, '0')}.${m.toString().padStart(2, '0')}`);
+currentDate.setDate(currentDate.getDate() + 1);
+}
+}
+return dates;
+}
+// Функция для проверки расписания
+function validateSchedule(schedule, participants, dates) {
+const results = {
+valid: true,
+errors: [],
+warnings: [],
+pairCounts: {},
+dayStats: {},
+conflicts: []
+};
+// Инициализируем счетчики пар
+for (let i = 0; i < participants.length; i++) {
+for (let j = i + 1; j < participants.length; j++) {
+const pair = [participants[i], participants[j]].sort().join(' ↔ ');
+results.pairCounts[pair] = 0;
+}
+}
+// Проверяем каждую пару
+participants.forEach((participant, idx) => {
+schedule[participant].forEach((partner, dayIdx) => {
+if (partner && partner !== '' && partner !== '(отдых)') {
+// Формируем ключ пары
+const pair = [participant, partner].sort().join(' ↔ ');
+// Увеличиваем счетчик
+if (results.pairCounts[pair] !== undefined) {
+results.pairCounts[pair]++;
+} else {
+results.pairCounts[pair] = 1;
+}
+// Проверяем симметричность
+if (schedule[partner][dayIdx] !== participant) {
+results.conflicts.push(`Несимметричная встреча: ${participant} встречается с ${partner}, но ${partner} встречается с ${schedule[partner][dayIdx]} в день ${dates[dayIdx]}`);
+results.valid = false;
+}
+}
+});
+});
+// Проверяем счетчики пар
+Object.keys(results.pairCounts).forEach(pair => {
+const count = results.pairCounts[pair];
+if (count === 0) {
+results.errors.push(`Пара ${pair} ни разу не встретилась`);
+results.valid = false;
+} else if (count > 1) {
+results.conflicts.push(`Пара ${pair} встретилась ${count} раз(а) - слишком много!`);
+results.valid = false;
+}
+});
+// Проверяем пустые ячейки
+let emptyCells = 0;
+participants.forEach(participant => {
+schedule[participant].forEach((partner, dayIdx) => {
+if (!partner || partner === '') {
+emptyCells++;
+results.warnings.push(`Пустая ячейка: ${participant} в день ${dates[dayIdx]}`);
+}
+});
+});
+if (emptyCells > 0) {
+results.warnings.push(`Найдено ${emptyCells} пустых ячеек в расписании`);
+}
+// Проверяем статистику по дням
+dates.forEach((date, dayIdx) => {
+let meetingsCount = 0;
+let participantsWithMeeting = 0;
+participants.forEach(participant => {
+const partner = schedule[participant][dayIdx];
+if (partner && partner !== '' && partner !== '(отдых)') {
+meetingsCount++;
+participantsWithMeeting++;
+} else if (partner === '(отдых)') {
+// Участник отдыхает - это нормально
+participantsWithMeeting++;
+}
+});
+// Каждая встреча учитывается дважды (для обоих участников)
+meetingsCount = meetingsCount / 2;
+results.dayStats[date] = {
+meetings: meetingsCount,
+participants: participantsWithMeeting
+};
+// Проверяем, что все участники либо встречаются, либо отдыхают
+if (participantsWithMeeting < participants.length) {
+results.warnings.push(`В день ${date} не у всех участников назначены встречи или отдых`);
+}
+});
+return results;
+}
+// Функция для отображения расписания
+function displaySchedule(schedule, dates, validationResults) {
+loading.style.display = 'none';
+// Создаем таблицу
+let tableHTML = '<table><thead><tr><th>№</th><th>Участник</th>';
+// Добавляем заголовки дат
+dates.forEach(date => {
+const dayStat = validationResults.dayStats[date];
+const dayClass = dayStat && dayStat.participants === participants.length ? 'day-valid' : 'day-invalid';
+tableHTML += `<th class="${dayClass}">${date}<br><small>${dayStat ? dayStat.meetings + ' встреч' : ''}</small></th>`;
+});
+tableHTML += '</tr></thead><tbody>';
+// Добавляем данные участников
+participants.forEach((participant, index) => {
+tableHTML += `<tr><td>${index + 1}</td><td><strong>${participant}</strong></td>`;
+dates.forEach((date, dateIndex) => {
+const partner = schedule[participant][dateIndex];
+let cellClass = '';
+let cellContent = partner || '-';
+if (!partner || partner === '') {
+cellClass = 'empty-cell';
+cellContent = '-';
+} else if (partner === '(отдых)') {
+cellClass = '';
+cellContent = '(отдых)';
+} else {
+cellClass = 'meeting-cell';
+// Проверяем, нет ли конфликта с этой парой
+const pair = [participant, partner].sort().join(' ↔ ');
+const pairCount = validationResults.pairCounts[pair];
+if (pairCount > 1) {
+cellClass += ' conflict-highlight';
+}
+}
+tableHTML += `<td class="${cellClass}">${cellContent}</td>`;
+});
+tableHTML += '</tr>';
+});
+tableHTML += '</tbody></table>';
+scheduleContainer.innerHTML = tableHTML;
+// Показываем кнопки экспорта
+exportControls.style.display = 'flex';
+// Показываем кнопку оптимизации, если есть проблемы
+/*
+if (!validationResults.valid || validationResults.warnings.length > 0) {
+optimizeBtn.style.display = 'inline-flex';
+} else {
+optimizeBtn.style.display = 'none';
+}
+*/
+// Обновляем статистику
+updateStats(schedule, dates, validationResults);
+// Отображаем результаты проверки
+displayValidationResults(validationResults);
+// Отображаем проверку пар
+displayPairChecks(validationResults.pairCounts);
+// Сохраняем текущее расписание для использования в других функциях
+currentSchedule = schedule;
+currentDates = dates;
+}
+// Функция для обновления статистики
+function updateStats(schedule, dates, validationResults) {
+// Считаем уникальные пары
+const allPairs = new Set();
+let meetingsCount = 0;
+let emptyCellsCount = 0;
+participants.forEach(participant => {
+schedule[participant].forEach(partner => {
+if (partner && partner !== '' && partner !== '(отдых)') {
+const pair = [participant, partner].sort().join('-');
+allPairs.add(pair);
+meetingsCount++;
+} else if (!partner || partner === '') {
+emptyCellsCount++;
+}
+});
+});
+// Каждая встреча учитывается дважды
+meetingsCount = meetingsCount / 2;
+const totalPairsPossible = participants.length * (participants.length - 1) / 2;
+const completeness = totalPairsPossible > 0 ? Math.round((allPairs.size / totalPairsPossible) * 100) : 0;
+statsContainer.innerHTML = `
+<div class="stat-item">
+<div class="stat-value">${participants.length}</div>
+<div class="stat-label">Участников</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">${dates.length}</div>
+<div class="stat-label">Дней</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">${allPairs.size}/${totalPairsPossible}</div>
+<div class="stat-label">Уникальных встреч</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">${completeness}%</div>
+<div class="stat-label">Заполненность</div>
+</div>
+`;
+// Показываем статистику
+statsContainer.style.display = 'flex';
+}
+// Функция для отображения результатов проверки
+function displayValidationResults(validationResults) {
+checkResults.innerHTML = '';
+validationSummary.innerHTML = '';
+// Отображаем статус проверки
+if (validationResults.valid && validationResults.warnings.length === 0) {
+validationSummary.className = 'validation-summary validation-ok';
+validationSummary.innerHTML = `
+<h3 style="margin-top: 0;">✓ Расписание корректно!</h3>
+<p>Все пары встречаются ровно один раз, пустых дней нет.</p>
+`;
+} else if (validationResults.valid) {
+validationSummary.className = 'validation-summary validation-ok';
+validationSummary.innerHTML = `
+<h3 style="margin-top: 0;">⚠ Расписание в основном корректно, но есть замечания</h3>
+<p>Все пары встречаются ровно один раз, но есть ${validationResults.warnings.length} замечаний.</p>
+`;
+} else {
+validationSummary.className = 'validation-summary validation-error';
+validationSummary.innerHTML = `
+<h3 style="margin-top: 0;">✗ Обнаружены проблемы в расписании</h3>
+<p>Найдено ${validationResults.errors.length} ошибок и ${validationResults.warnings.length} предупреждений.</p>
+`;
+}
+// Отображаем ошибки
+validationResults.errors.forEach(error => {
+const checkItem = document.createElement('div');
+checkItem.className = 'check-item';
+checkItem.innerHTML = `
+<div class="check-icon check-error">✗</div>
+<div>${error}</div>
+`;
+checkResults.appendChild(checkItem);
+});
+// Отображаем предупреждения
+validationResults.warnings.forEach(warning => {
+const checkItem = document.createElement('div');
+checkItem.className = 'check-item';
+checkItem.innerHTML = `
+<div class="check-icon check-warning">!</div>
+<div>${warning}</div>
+`;
+checkResults.appendChild(checkItem);
+});
+// Отображаем конфликты
+if (validationResults.conflicts.length > 0) {
+conflictList.style.display = 'block';
+conflictsDiv.innerHTML = '';
+validationResults.conflicts.forEach(conflict => {
+const conflictItem = document.createElement('div');
+conflictItem.className = 'check-item';
+conflictItem.innerHTML = `
+<div class="check-icon check-error">✗</div>
+<div>${conflict}</div>
+`;
+conflictsDiv.appendChild(conflictItem);
+});
+} else {
+conflictList.style.display = 'none';
+}
+// Если все хорошо, показываем успешное сообщение
+if (validationResults.valid && validationResults.errors.length === 0 && validationResults.warnings.length === 0) {
+const checkItem = document.createElement('div');
+checkItem.className = 'check-item';
+checkItem.innerHTML = `
+<div class="check-icon check-success">✓</div>
+<div>Все проверки пройдены успешно! Расписание идеально.</div>
+`;
+checkResults.appendChild(checkItem);
+}
+}
+// Функция для отображения проверки пар
+function displayPairChecks(pairCounts) {
+pairChecksContainer.innerHTML = '';
+// Создаем таблицу с парами
+const pairs = Object.keys(pairCounts).sort();
+if (pairs.length > 0) {
+let tableHTML = '<h3 style="margin-top: 20px;">Проверка встреч для каждой пары:</h3>';
+tableHTML += '<table class="pair-count-table"><thead><tr><th>Пара</th><th>Количество встреч</th><th>Статус</th></tr></thead><tbody>';
+pairs.forEach(pair => {
+const count = pairCounts[pair];
+let status = '';
+let rowClass = '';
+if (count === 0) {
+status = 'Не встретились';
+rowClass = 'pair-count-0';
+} else if (count === 1) {
+status = '✓ Встретились 1 раз';
+rowClass = 'pair-count-1';
+} else {
+status = `✗ Встретились ${count} раз(а)`;
+rowClass = 'pair-count-more';
+}
+tableHTML += `<tr class="${rowClass}"><td>${pair}</td><td>${count}</td><td>${status}</td></tr>`;
+});
+tableHTML += '</tbody></table>';
+pairChecksContainer.innerHTML = tableHTML;
+}
+}
+// Функция для экспорта в Excel
+function exportToExcel(schedule, dates) {
+// Создаем рабочую книгу
+const wb = XLSX.utils.book_new();
+// Создаем данные для листа с расписанием
+const scheduleData = [];
+// Заголовок
+const header = ['№', 'Участник', ...dates];
+scheduleData.push(header);
+// Данные участников
+participants.forEach((participant, index) => {
+const row = [index + 1, participant];
+dates.forEach(date => {
+const partner = schedule[participant][dates.indexOf(date)] || '';
+row.push(partner);
+});
+scheduleData.push(row);
+});
+// Создаем лист
+const ws = XLSX.utils.aoa_to_sheet(scheduleData);
+// Добавляем лист в книгу
+XLSX.utils.book_append_sheet(wb, ws, "Расписание встреч");
+// Создаем лист с проверкой
+const validationResults = validateSchedule(schedule, participants, dates);
+const checkData = [];
+checkData.push(['ПРОВЕРКА РАСПИСАНИЯ']);
+checkData.push([]);
+checkData.push(['Статистика:']);
+checkData.push([`Всего участников: ${participants.length}`]);
+checkData.push([`Всего дней: ${dates.length}`]);
+// Считаем уникальные пары
+const allPairs = new Set();
+participants.forEach(participant => {
+schedule[participant].forEach(partner => {
+if (partner && partner !== '' && partner !== '(отдых)') {
+const pair = [participant, partner].sort().join(' - ');
+allPairs.add(pair);
+}
+});
+});
+const totalPairsPossible = participants.length * (participants.length - 1) / 2;
+checkData.push([]);
+checkData.push(['Результат проверки:']);
+checkData.push([`Найдено уникальных пар: ${allPairs.size}`]);
+checkData.push([`Ожидалось пар: ${totalPairsPossible}`]);
+if (validationResults.valid) {
+checkData.push(['✓ Все пары уникальны! Расписание корректно.']);
+} else {
+checkData.push(['⚠ Внимание! Обнаружены проблемы в расписании.']);
+}
+if (validationResults.errors.length > 0) {
+checkData.push([]);
+checkData.push(['Ошибки:']);
+validationResults.errors.forEach(error => {
+checkData.push([error]);
+});
+}
+if (validationResults.warnings.length > 0) {
+checkData.push([]);
+checkData.push(['Предупреждения:']);
+validationResults.warnings.forEach(warning => {
+checkData.push([warning]);
+});
+}
+checkData.push([]);
+checkData.push(['Список всех встреч (по алфавиту):']);
+// Сортируем пары по алфавиту
+const sortedPairs = Array.from(allPairs).sort();
+sortedPairs.forEach(pair => {
+checkData.push([pair]);
+});
+const wsCheck = XLSX.utils.aoa_to_sheet(checkData);
+XLSX.utils.book_append_sheet(wb, wsCheck, "Проверка");
+// Сохраняем файл
+const filename = `Расписание_встреч_${new Date().toISOString().slice(0, 10)}.xlsx`;
+XLSX.writeFile(wb, filename);
+}
+// Функция для печати расписания
+function printSchedule() {
+const printWindow = window.open('', '_blank');
+printWindow.document.write(`
+<html>
+<head>
+<title>Расписание встреч</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+h1 { color: #3a7bd5; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+th { background-color: #3a7bd5; color: white; }
+tr:nth-child(even) { background-color: #f9f9f9; }
+.stats { display: flex; justify-content: space-between; margin: 20px 0; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 1.5rem; font-weight: bold; color: #3a7bd5; }
+.footer { margin-top: 30px; text-align: center; color: #666; font-size: 0.9rem; }
+.empty-cell { background-color: #fff3cd; font-style: italic; }
+.meeting-cell { background-color: #e7f3ff; }
+</style>
+</head>
+<body>
+<h1>Расписание встреч</h1>
+<p>Дата создания: ${new Date().toLocaleDateString('ru-RU')}</p>
+<div class="stats">
+<div class="stat-item">
+<div class="stat-value">${participants.length}</div>
+<div>Участников</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">${currentDates ? currentDates.length : 0}</div>
+<div>Дней</div>
+</div>
+</div>
+${scheduleContainer.innerHTML}
+<div class="footer">
+<p>Сгенерировано с помощью Генератора расписания встреч</p>
+</div>
+</body>
+</html>
+`);
+printWindow.document.close();
+printWindow.print();
+}
+// Обработчики событий
+addBtn.addEventListener('click', addParticipant);
+participantInput.addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+addParticipant();
+}
+});
+clearBtn.addEventListener('click', clearParticipants);
+exampleBtn.addEventListener('click', function() {
+loadExample();
+hideError();
+});
+/*
+optimizeBtn.addEventListener('click', function() {
+if (currentSchedule && currentDates) {
+loading.style.display = 'block';
+setTimeout(() => {
+const optimizedSchedule = optimizeSchedule(currentSchedule, participants, currentDates);
+const validationResults = validateSchedule(optimizedSchedule, participants, currentDates);
+displaySchedule(optimizedSchedule, currentDates, validationResults);
+}, 500);
+}
+});
+*/
+generateBtn.addEventListener('click', function() {
+if (participants.length < 2) {
+showError('Добавьте как минимум 2 участника');
+return;
+}
+const startDate = startDateInput.value.trim();
+if (!startDate || !startDate.match(/^\d{1,2}\.\d{1,2}$/)) {
+showError('Введите дату начала в формате дд.мм (например: 03.02)');
+return;
+}
+hideError();
+loading.style.display = 'block';
+scheduleContainer.innerHTML = '';
+exportControls.style.display = 'none';
+checkResults.innerHTML = '';
+pairChecksContainer.innerHTML = '';
+validationSummary.innerHTML = '';
+conflictList.style.display = 'none';
+// Генерация расписания и проверка
+setTimeout(() => {
+const { schedule, dates } = generateSchedule(participants, startDate);
+const validationResults = validateSchedule(schedule, participants, dates);
+displaySchedule(schedule, dates, validationResults);
+}, 500);
+});
+exportExcelBtn.addEventListener('click', function() {
+if (currentSchedule && currentDates) {
+exportToExcel(currentSchedule, currentDates);
+}
+});
+exportPrintBtn.addEventListener('click', printSchedule);
+// Инициализация
+renderParticipantsList();
+});
+</script>
 </body>
 </html>
